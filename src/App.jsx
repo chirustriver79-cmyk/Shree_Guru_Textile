@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
+import ProductPage from "./pages/ProductPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/sarees" element={<CategoryPage category="Sarees" />} />
+        {/* <Route path="/sarees" element={<CategoryPage category="Sarees" />} /> */}
         <Route path="/mens-kurtas" element={<CategoryPage category="Men's Kurtas" />} />
         <Route path="/bridal" element={<CategoryPage category="Bridal" />} />
         <Route path="/fusion-wear" element={<CategoryPage category="Fusion Wear" />} />
@@ -21,7 +22,8 @@ function App() {
         <Route path="/kids" element={<CategoryPage category="Kids" />} />
         <Route path="/wedding" element={<CategoryPage category="Wedding" />} />
         <Route path="/festive" element={<CategoryPage category="Festive" />} />
-        <Route path="/accessories" element={<CategoryPage category="Accessories" />} />
+        <Route path="/accessories" element={<CategoryPage category="Accessories" />} /> 
+        <Route path="/sarees"  element={<ProductPage />} />
       </Routes>
     </Router>
   );
