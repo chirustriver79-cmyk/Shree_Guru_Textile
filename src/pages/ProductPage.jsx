@@ -1,7 +1,10 @@
 // src/pages/ProductPage.jsx
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
+import { useWishlist } from "../context/WishlistContext";
+import { allProducts } from "../data/mockData";
 import "../components/css/product.css";
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -110,7 +113,10 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [selectedSize,  setSelectedSize]  = useState("Custom Stitch");
   const [activeImg,     setActiveImg]     = useState(0);
-  const [wishlisted,    setWishlisted]    = useState(false);
+  const { id } = useParams();
+  const productData = allProducts.find((p) => String(p.id) === id) || {};
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const wishlisted = isWishlisted(productData.id || 0);
   const [pincode,       setPincode]       = useState("");
   const [deliveryMsg,   setDeliveryMsg]   = useState(null);
   const [activeTab,     setActiveTab]     = useState("details");
@@ -187,7 +193,7 @@ export default function ProductPage() {
             <div className="pp-main-img">
               <button
                 className={"pp-wish" + (wishlisted ? " pp-wish--on" : "")}
-                onClick={() => setWishlisted(w => !w)}
+                onClick={() => toggleWishlist({ id: productData.id || Number(id) || 1, name: productData.name || "Emerald Green Zari Woven Silk Saree", price: productData.price || 8499, originalPrice: productData.originalPrice || null, image: productData.image || "", brand: productData.fabric || "SHREE GURU", sizes: productData.sizes || null, category: productData.category || "All" })}
                 aria-label="Toggle wishlist"
               >
                 {wishlisted ? "♥" : "♡"}

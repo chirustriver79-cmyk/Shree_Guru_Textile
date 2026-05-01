@@ -1,8 +1,12 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "../css/header.css";
 import { navLinks } from "../../data/mockData";
+import { useWishlist } from "../../context/WishlistContext";
 
 function Header() {
+  const { wishlist } = useWishlist();
+  const navigate = useNavigate();
+
   return (
     <header className="header">
       {/* Top bar */}
@@ -43,9 +47,16 @@ function Header() {
 
         {/* Actions */}
         <div className="header__actions">
-          {/* Wishlist */}
-          <button className="header__action-btn" aria-label="Wishlist">
-            <span className="header__badge">2</span>
+          {/* Wishlist — now a link with live count */}
+          <button
+            className="header__action-btn"
+            aria-label="Wishlist"
+            onClick={() => navigate("/wishlist")}
+            title="Go to Wishlist"
+          >
+            {wishlist.length > 0 && (
+              <span className="header__badge">{wishlist.length}</span>
+            )}
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -62,7 +73,7 @@ function Header() {
           </button>
 
           {/* Account */}
-          <button className="header__action-btn" aria-label="Account">
+          <button className="header__action-btn" aria-label="Account" onClick={() => navigate("/profile")}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
@@ -75,12 +86,11 @@ function Header() {
       <nav className="header__nav">
         {navLinks.map((link) => (
           <NavLink
-            key={link.path}
+            key={link.label}
             to={link.path}
             className={({ isActive }) =>
               "header__nav-link" + (isActive ? " active" : "")
             }
-            end={link.path === "/"}
           >
             {link.label}
           </NavLink>

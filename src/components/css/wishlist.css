@@ -1,0 +1,386 @@
+/* =========================================
+   WISHLIST PAGE — Shree Guru Textile
+   ========================================= */
+
+.wishlist-page {
+  background: #f5f2ed;
+  min-height: 100vh;
+  font-family: "Jost", sans-serif;
+}
+
+/* ── Breadcrumb ── */
+.wl-breadcrumb {
+  background: #fff;
+  border-bottom: 1px solid #ece8e2;
+  padding: 12px 40px;
+  font-size: 12.5px;
+  color: #999;
+}
+
+.wl-breadcrumb a {
+  color: #999;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.wl-breadcrumb a:hover { color: #2c1810; }
+
+/* ── Page heading ── */
+.wl-header {
+  text-align: center;
+  padding: 48px 24px 16px;
+}
+
+.wl-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: 0.01em;
+}
+
+.wl-count {
+  font-family: "Jost", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: #999;
+  margin-left: 10px;
+}
+
+.wl-subtitle {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+}
+
+/* ── Filter tabs ── */
+.wl-filters {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 20px 40px 32px;
+}
+
+.wl-filter-btn {
+  padding: 8px 20px;
+  border-radius: 50px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  font-family: "Jost", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.wl-filter-btn:hover:not(.active) {
+  border-color: #2c1810;
+  color: #2c1810;
+}
+
+.wl-filter-btn.active {
+  background: #2c1810;
+  border-color: #2c1810;
+  color: #fff;
+}
+
+/* ── Product grid ── */
+.wl-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 0 40px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) { .wl-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 860px)  { .wl-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px)  { .wl-grid { grid-template-columns: 1fr; padding: 0 16px 40px; } }
+
+/* ── Card ── */
+.wl-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.3s, opacity 0.5s, transform 0.5s;
+}
+
+.wl-card:hover {
+  box-shadow: 0 12px 40px rgba(44, 24, 16, 0.12);
+}
+
+.wl-card--fade {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Remove × button */
+.wl-card__remove {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.wl-card__remove:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+/* Badge */
+.wl-card__badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  font-family: "Jost", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 9px;
+  border-radius: 4px;
+}
+
+.wl-card__badge--drop  { background: #c0392b; color: #fff; }
+.wl-card__badge--low   { background: #8b5e3c; color: #fff; }
+.wl-card__badge--new   { background: #2c1810; color: #fff; }
+.wl-card__badge--off   { background: #c9474b; color: #fff; }
+
+/* Image */
+.wl-card__img-wrap {
+  height: 280px;
+  overflow: hidden;
+  background: #f5f2ed;
+  cursor: pointer;
+}
+
+.wl-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 0.5s ease;
+}
+
+.wl-card:hover .wl-card__img { transform: scale(1.05); }
+
+/* Card body */
+.wl-card__body {
+  padding: 16px;
+}
+
+.wl-card__brand {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #aaa;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.wl-card__name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.25;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.wl-card__name:hover { color: #c9a84c; }
+
+/* Price row */
+.wl-card__price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.wl-card__price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.wl-card__price-original {
+  font-size: 13px;
+  color: #bbb;
+  text-decoration: line-through;
+}
+
+.wl-card__discount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2e7d52;
+  background: #e8f5ee;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Sizes */
+.wl-card__sizes {
+  margin-bottom: 14px;
+}
+
+.wl-card__size-label {
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.wl-card__size-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wl-card__size-btn {
+  padding: 4px 10px;
+  border: 1.5px solid #ddd;
+  border-radius: 4px;
+  background: transparent;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.18s;
+  min-width: 36px;
+  text-align: center;
+}
+
+.wl-card__size-btn:hover:not(.active) {
+  border-color: #2c1810;
+  color: #2c1810;
+}
+
+.wl-card__size-btn.active {
+  border-color: #2c1810;
+  background: #2c1810;
+  color: #fff;
+}
+
+/* Actions */
+.wl-card__actions { display: flex; gap: 8px; }
+
+.wl-card__move-btn {
+  flex: 1;
+  padding: 11px;
+  background: #2c1810;
+  color: #fff;
+  border: none;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.wl-card__move-btn:hover:not(:disabled) { background: #c9a84c; }
+.wl-card__move-btn.done { background: #2e7d52; cursor: default; }
+
+/* ── Empty state ── */
+.wl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  gap: 16px;
+}
+
+.wl-empty__icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #fdf6e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.wl-empty__title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.wl-empty__sub {
+  font-size: 14px;
+  color: #888;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.wl-empty__cta {
+  margin-top: 8px;
+  padding: 13px 32px;
+  background: #2c1810;
+  color: #fff;
+  border: none;
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.wl-empty__cta:hover { background: #c9a84c; }
+
+/* ── Continue shopping ── */
+.wl-continue {
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 60px;
+}
+
+.wl-continue__btn {
+  padding: 12px 28px;
+  border: 1.5px solid #2c1810;
+  background: transparent;
+  color: #2c1810;
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.wl-continue__btn:hover {
+  background: #2c1810;
+  color: #fff;
+}

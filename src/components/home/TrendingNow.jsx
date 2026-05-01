@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { trendingProducts } from "../../data/mockData";
+import { useWishlist } from "../../context/WishlistContext";
 import "../css/home.css";
 
 const ITEMS_PER_PAGE = 4;
 
 function ProductCard({ product }) {
-  const [liked, setLiked] = useState(product.liked);
   const navigate = useNavigate();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const liked = isWishlisted(product.id);
 
   const goToProduct = () => navigate(`/product/${product.id}`);
+
+  const handleWishlist = (e) => {
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
 
   return (
     <div className="product-card">
@@ -21,8 +28,9 @@ function ProductCard({ product }) {
         )}
         <button
           className={`product-card__wishlist${liked ? " liked" : ""}`}
-          onClick={(e) => { e.stopPropagation(); setLiked((l) => !l); }}
+          onClick={handleWishlist}
           aria-label="Wishlist"
+          title={liked ? "Remove from Wishlist" : "Add to Wishlist"}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
