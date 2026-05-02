@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
 import "../components/css/wishlist.css";
 
 const FILTER_OPTIONS = ["All Items", "Women", "Men", "Festive", "Wedding"];
@@ -19,6 +20,7 @@ function getTabCategory(product) {
 export default function WishlistPage() {
   const navigate = useNavigate();
   const { wishlist, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const [activeFilter, setActiveFilter] = useState("All Items");
   const [selectedSizes, setSelectedSizes] = useState({});
   const [movedToBag, setMovedToBag] = useState({});
@@ -27,9 +29,12 @@ export default function WishlistPage() {
     setSelectedSizes((prev) => ({ ...prev, [id]: size }));
   };
 
-  const handleMoveToBag = (id) => {
-    setMovedToBag((prev) => ({ ...prev, [id]: true }));
-    setTimeout(() => removeFromWishlist(id), 600);
+  const handleMoveToBag = (item) => {
+    // Add to cart context with selected size
+    addToCart(item, selectedSizes[item.id] || null);
+    setMovedToBag((prev) => ({ ...prev, [item.id]: true }));
+    // Remove from wishlist after animation delay
+    setTimeout(() => removeFromWishlist(item.id), 600);
   };
 
   const filtered =
@@ -168,7 +173,7 @@ export default function WishlistPage() {
                 <div className="wl-card__actions">
                   <button
                     className={`wl-card__move-btn${movedToBag[item.id] ? " done" : ""}`}
-                    onClick={() => handleMoveToBag(item.id)}
+                    onClick={() => handleMoveToBag(item)}
                     disabled={movedToBag[item.id]}
                   >
                     {movedToBag[item.id] ? "✓ ADDED TO BAG" : "MOVE TO BAG"}

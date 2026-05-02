@@ -2,9 +2,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import "../css/header.css";
 import { navLinks } from "../../data/mockData";
 import { useWishlist } from "../../context/WishlistContext";
+import { useCart } from "../../context/CartContext";
 
 function Header() {
   const { wishlist } = useWishlist();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
 
   return (
@@ -63,8 +65,10 @@ function Header() {
           </button>
 
           {/* Cart */}
-          <button className="header__action-btn" aria-label="Cart">
-            <span className="header__badge header__badge--cart">1</span>
+          <button className="header__action-btn" aria-label="Cart" onClick={() => navigate("/cart")}>
+            {cartCount > 0 && (
+              <span className="header__badge header__badge--cart">{cartCount}</span>
+            )}
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />

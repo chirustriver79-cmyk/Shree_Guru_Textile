@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
 import { allProducts } from "../data/mockData";
 import "../components/css/product.css";
 
@@ -116,6 +117,7 @@ export default function ProductPage() {
   const { id } = useParams();
   const productData = allProducts.find((p) => String(p.id) === id) || {};
   const { isWishlisted, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const wishlisted = isWishlisted(productData.id || 0);
   const [pincode,       setPincode]       = useState("");
   const [deliveryMsg,   setDeliveryMsg]   = useState(null);
@@ -299,7 +301,7 @@ export default function ProductPage() {
 
             {/* CTAs */}
             <div className="pp-ctas">
-              <button className="pp-cta-primary" onClick={() => showToast("🛍 Added to bag!")}>🛍 Add to Bag</button>
+              <button className="pp-cta-primary" onClick={() => { addToCart(productData, selectedSize); showToast("🛍 Added to bag!"); }}>🛍 Add to Bag</button>
               <button className="pp-cta-outline">Buy Now</button>
             </div>
 
