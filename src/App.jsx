@@ -11,15 +11,6 @@ import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
-<<<<<<< HEAD
-    <Router>
-      <Routes>
-        <Route path="/"         element={<HomePage />} />
-        <Route path="/products" element={<AllProductsPage />} />
-        <Route path="/product/:id" element={<ProductPage />} />
-      </Routes>
-    </Router>
-=======
     <WishlistProvider>
       <CartProvider>
         <Router>
@@ -35,7 +26,6 @@ function App() {
         </Router>
       </CartProvider>
     </WishlistProvider>
->>>>>>> ed94cfe8b2a6f3c4eb5abece76f00378ee368459
   );
 }
 
