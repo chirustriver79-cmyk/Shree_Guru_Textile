@@ -138,6 +138,7 @@ function AllProductsPage() {
   const [sortBy,       setSortBy]       = useState("recommended");
   const [viewMode,     setViewMode]     = useState("4"); // "4" | "3" | "list"
   const [page,         setPage]         = useState(1);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   // ── derive active gender from URL or checked cats ──
   const activeGender = useMemo(() => {
@@ -285,6 +286,18 @@ function AllProductsPage() {
           Showing <strong>{filtered.length} results</strong> from {allProducts.length}
         </div>
 
+        {/* Mobile filter toggle */}
+        <button
+          className="ap-toolbar__filter-btn"
+          onClick={() => setFilterDrawerOpen(true)}
+          aria-label="Open filters"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="18" x2="12" y2="18"/>
+          </svg>
+          Filters
+        </button>
+
         <div className="ap-toolbar__sort">
           <span>Sort by:</span>
           <select
@@ -325,11 +338,26 @@ function AllProductsPage() {
 
       {/* Body */}
       <div className="ap-body">
+        {/* ── Mobile filter overlay ── */}
+        {filterDrawerOpen && (
+          <div
+            className="ap-drawer-overlay"
+            onClick={() => setFilterDrawerOpen(false)}
+          />
+        )}
+
         {/* ── Sidebar ── */}
-        <aside className="ap-sidebar">
+        <aside className={`ap-sidebar${filterDrawerOpen ? " ap-sidebar--open" : ""}`}>
           <div className="ap-sidebar__header">
             <span className="ap-sidebar__title">Filters</span>
-            <button className="ap-sidebar__clear" onClick={clearAll}>Clear All</button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button className="ap-sidebar__clear" onClick={clearAll}>Clear All</button>
+              <button
+                className="ap-sidebar__close"
+                onClick={() => setFilterDrawerOpen(false)}
+                aria-label="Close filters"
+              >✕</button>
+            </div>
           </div>
 
           {/* Collections */}

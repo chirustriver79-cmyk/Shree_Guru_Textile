@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import "../css/header.css";
 import { navLinks } from "../../data/mockData";
 import { useWishlist } from "../../context/WishlistContext";
@@ -8,6 +8,25 @@ function Header() {
   const { wishlist } = useWishlist();
   const { cartCount } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Custom active check: match pathname AND all query params of the nav link
+  const isNavActive = (linkPath) => {
+    const qIdx = linkPath.indexOf("?");
+    const linkPathname = qIdx === -1 ? linkPath : linkPath.slice(0, qIdx);
+    const linkSearch  = qIdx === -1 ? "" : linkPath.slice(qIdx + 1);
+
+    if (linkPathname === "/") return location.pathname === "/";
+    if (location.pathname !== linkPathname) return false;
+    if (!linkSearch) return true;
+
+    const current = new URLSearchParams(location.search);
+    const needed  = new URLSearchParams(linkSearch);
+    for (const [k, v] of needed) {
+      if (current.get(k) !== v) return false;
+    }
+    return true;
+  };
 
   return (
     <header className="header">
@@ -92,8 +111,8 @@ function Header() {
           <NavLink
             key={link.label}
             to={link.path}
-            className={({ isActive }) =>
-              "header__nav-link" + (isActive ? " active" : "")
+            className={() =>
+              "header__nav-link" + (isNavActive(link.path) ? " active" : "")
             }
           >
             {link.label}
