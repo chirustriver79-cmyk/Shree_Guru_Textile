@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kosmic — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8D5A0;
+    --gold-dark: #8B6914;
+    --charcoal: #1C1A16;
+    --charcoal-mid: #2E2B24;
+    --charcoal-soft: #3D3A31;
+    --cream: #F7F3EC;
+    --cream-dark: #EDE6D8;
+    --warm-white: #FDFAF5;
+    --text-primary: #1C1A16;
+    --text-secondary: #6B6459;
+    --text-muted: #9B9186;
+    --border: rgba(201,168,76,0.18);
+    --border-mid: rgba(201,168,76,0.3);
+    --sidebar-w: 240px;
+    --topbar-h: 64px;
+    --red: #C0392B;
+    --green: #27AE60;
+    --orange: #E67E22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-primary); display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--charcoal); position: fixed; left: 0; top: 0; height: 100vh;
+    display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(201,168,76,0.12);
+  }
+  .sidebar-logo {
+    padding: 22px 24px 18px; border-bottom: 1px solid rgba(201,168,76,0.12);
+  }
+  .sidebar-logo .brand { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--gold); letter-spacing: 0.08em; }
+  .sidebar-logo .brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase; margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+  .nav-section-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(201,168,76,0.4); padding: 16px 24px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 24px; cursor: pointer;
+    font-size: 13.5px; color: rgba(255,255,255,0.55); transition: all 0.2s; font-weight: 400;
+    border-left: 2px solid transparent; position: relative;
+  }
+  .nav-item:hover { color: var(--gold-light); background: rgba(201,168,76,0.06); }
+  .nav-item.active { color: var(--gold); background: rgba(201,168,76,0.1); border-left-color: var(--gold); }
+  .nav-item .nav-icon { width: 16px; height: 16px; opacity: 0.8; flex-shrink: 0; }
+  .nav-item .badge { margin-left: auto; background: var(--gold); color: var(--charcoal); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(201,168,76,0.12); }
+  .sidebar-user { display: flex; align-items: center; gap: 10px; }
+  .sidebar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--gold-light); flex-shrink: 0; }
+  .sidebar-user .user-info .name { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; }
+  .sidebar-user .user-info .role { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+  /* TOPBAR */
+  .topbar {
+    position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: var(--topbar-h);
+    background: var(--warm-white); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 32px; gap: 16px; z-index: 90;
+  }
+  .topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: var(--charcoal); flex: 1; }
+  .topbar-search { display: flex; align-items: center; background: var(--cream); border: 1px solid var(--border-mid); border-radius: 8px; padding: 8px 14px; gap: 8px; width: 260px; }
+  .topbar-search input { border: none; background: none; font-size: 13px; color: var(--text-primary); width: 100%; outline: none; font-family: 'DM Sans', sans-serif; }
+  .topbar-search input::placeholder { color: var(--text-muted); }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all 0.2s; font-size: 16px; }
+  .icon-btn:hover { background: var(--cream); border-color: var(--border-mid); }
+  .icon-btn.notif { position: relative; }
+  .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 1.5px solid var(--warm-white); }
+  .admin-chip { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--cream); border: 1px solid var(--border-mid); border-radius: 8px; cursor: pointer; }
+  .admin-chip .a-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--charcoal); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--gold); }
+  .admin-chip span { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); flex: 1; padding: 32px; min-height: calc(100vh - var(--topbar-h)); }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* COMMON COMPONENTS */
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500; color: var(--charcoal); }
+  .page-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: none; }
+  .btn-primary { background: var(--charcoal); color: var(--gold-light); }
+  .btn-primary:hover { background: var(--charcoal-soft); }
+  .btn-gold { background: var(--gold); color: var(--charcoal); }
+  .btn-gold:hover { background: var(--gold-dark); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--border-mid); color: var(--text-secondary); }
+  .btn-outline:hover { background: var(--cream); }
+  .btn-danger { background: #FEF2F2; border: 1px solid #FECACA; color: var(--red); }
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-active { background: #ECFDF5; color: #15803D; border: 1px solid #BBF7D0; }
+  .badge-draft { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+  .badge-low { background: #FEF2F2; color: var(--red); border: 1px solid #FECACA; }
+  .badge-cat { background: var(--cream-dark); color: var(--text-secondary); border: 1px solid var(--border); }
+  label.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+  input.form-input, select.form-select, textarea.form-textarea {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border-mid); border-radius: 8px;
+    font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text-primary);
+    background: var(--warm-white); outline: none; transition: border-color 0.2s;
+  }
+  input.form-input:focus, select.form-select:focus, textarea.form-textarea:focus { border-color: var(--gold); }
+  textarea.form-textarea { resize: vertical; min-height: 100px; }
+  .form-group { margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .flex-between { display: flex; align-items: center; justify-content: space-between; }
+  .flex-gap { display: flex; align-items: center; gap: 10px; }
+
+  /* STAT CARDS */
+  .stat-card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; }
+  .stat-card .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+  .stat-card .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 500; color: var(--charcoal); line-height: 1; }
+  .stat-card .stat-change { font-size: 12px; margin-top: 8px; }
+  .stat-card .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 16px; }
+  .icon-gold { background: rgba(201,168,76,0.12); color: var(--gold-dark); }
+  .icon-green { background: #ECFDF5; color: #15803D; }
+  .icon-blue { background: #EFF6FF; color: #1D4ED8; }
+  .icon-red { background: #FEF2F2; color: var(--red); }
+  .stat-up { color: #15803D; }
+  .stat-down { color: var(--red); }
+
+  /* MINI CHART */
+  .chart-bar-wrap { display: flex; align-items: flex-end; gap: 4px; height: 60px; margin-top: 12px; }
+  .chart-bar { background: var(--gold-light); border-radius: 3px 3px 0 0; flex: 1; opacity: 0.7; transition: opacity 0.2s; }
+  .chart-bar:hover { opacity: 1; }
+  .chart-bar.peak { background: var(--gold); opacity: 1; }
+
+  /* PRODUCT TABLE */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 500; }
+  .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13.5px; color: var(--text-primary); vertical-align: middle; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--cream); }
+  .product-thumb { width: 44px; height: 52px; border-radius: 6px; object-fit: cover; background: var(--cream-dark); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .product-name-cell { display: flex; align-items: center; gap: 12px; }
+  .action-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .action-btn:hover { background: var(--cream); }
+  .action-btn.del { border-color: #FECACA; color: var(--red); }
+  .action-btn.del:hover { background: #FEF2F2; }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed var(--border-mid); border-radius: 12px; padding: 40px 20px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream);
+  }
+  .upload-zone:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .upload-zone .upload-icon { font-size: 32px; margin-bottom: 12px; }
+  .upload-zone p { font-size: 13px; color: var(--text-muted); }
+  .upload-zone strong { color: var(--gold-dark); }
+  .img-preview-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .img-thumb { width: 80px; height: 96px; border-radius: 8px; background: var(--cream-dark); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; cursor: pointer; overflow: hidden; }
+  .img-thumb .del-x { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+
+  /* SIZE TAGS */
+  .size-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+  .size-tag { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border-mid); color: var(--text-secondary); background: transparent; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .size-tag.selected { border-color: var(--gold); background: rgba(201,168,76,0.1); color: var(--gold-dark); }
+
+  /* CATEGORY TAGS */
+  .cat-tag { padding: 7px 16px; border-radius: 20px; font-size: 12.5px; cursor: pointer; border: 1.5px solid var(--border-mid); color: var(--text-secondary); background: transparent; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .cat-tag.selected { border-color: var(--charcoal); background: var(--charcoal); color: var(--gold-light); }
+
+  /* TOGGLE */
+  .toggle-wrap { display: flex; align-items: center; gap: 12px; }
+  .toggle { position: relative; width: 44px; height: 24px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-mid); border-radius: 24px; transition: 0.3s; border: 1.5px solid transparent; }
+  .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 1px; background: white; border-radius: 50%; transition: 0.3s; }
+  .toggle input:checked + .toggle-slider { background: var(--gold); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(19px); }
+
+  /* FORM SECTION HEADER */
+  .form-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .form-section-num { width: 28px; height: 28px; border-radius: 50%; background: var(--charcoal); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .form-section-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: var(--charcoal); }
+
+  /* ACTIVITY FEED */
+  .activity-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-top: 5px; flex-shrink: 0; }
+  .activity-text { font-size: 13px; color: var(--text-primary); line-height: 1.5; }
+  .activity-time { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ORDER TABLE SPECIAL */
+  .order-status { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 500; }
+  .os-delivered { background: #ECFDF5; color: #15803D; }
+  .os-processing { background: #EFF6FF; color: #1D4ED8; }
+  .os-pending { background: #FFF7ED; color: #C2410C; }
+  .os-cancelled { background: #FEF2F2; color: var(--red); }
+
+  /* PIE CHART SVG */
+  .pie-legend { display: flex; flex-direction: column; gap: 8px; }
+  .pie-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+  .pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* INVENTORY */
+  .stock-bar { height: 6px; border-radius: 3px; background: var(--cream-dark); overflow: hidden; margin-top: 6px; }
+  .stock-fill { height: 100%; border-radius: 3px; }
+
+  /* TABS */
+  .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab-btn { padding: 10px 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .tab-btn.active { color: var(--charcoal); border-bottom-color: var(--gold); }
+  .tab-btn:hover { color: var(--text-primary); }
+
+  /* SEARCH IN PAGES */
+  .page-search { display: flex; align-items: center; background: var(--warm-white); border: 1px solid var(--border-mid); border-radius: 8px; padding: 9px 14px; gap: 8px; }
+  .page-search input { border: none; background: none; font-size: 13px; color: var(--text-primary); outline: none; font-family: 'DM Sans', sans-serif; width: 200px; }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-select { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-mid); background: var(--warm-white); font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text-secondary); outline: none; cursor: pointer; }
+
+  /* MEDIA GRID */
+  .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .media-item { border-radius: 10px; border: 1px solid var(--border); background: var(--cream-dark); aspect-ratio: 3/4; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: all 0.2s; }
+  .media-item:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .media-item .media-emoji { font-size: 36px; }
+  .media-item .media-name { font-size: 10px; color: var(--text-muted); margin-top: 6px; text-align: center; padding: 0 6px; }
+  .media-item .media-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; gap: 8px; }
+  .media-item:hover .media-overlay { display: flex; }
+
+  /* DISCOUNT PAGE */
+  .discount-card { background: var(--warm-white); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; }
+  .discount-code { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; letter-spacing: 0.1em; color: var(--charcoal); }
+
+  /* SETTINGS */
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid var(--border); }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* DONUT CHART */
+  .donut-wrap { display: flex; align-items: center; gap: 24px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">The Kosmic</div>
+    <div class="brand-sub">Admin Console</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-section-label">Catalogue</div>
+    <div class="nav-item" onclick="showPage('products', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V11"/></svg>
+      Products
+    </div>
+    <div class="nav-item" onclick="showPage('categories', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+      Categories
+    </div>
+    <div class="nav-item" onclick="showPage('inventory', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Inventory
+      <span class="badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('media', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      Media Library
+    </div>
+    <div class="nav-section-label">Commerce</div>
+    <div class="nav-item" onclick="showPage('orders', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      Orders
+      <span class="badge">12</span>
+    </div>
+    <div class="nav-item" onclick="showPage('discounts', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l6-6M9.5 9.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/><circle cx="12" cy="12" r="9"/></svg>
+      Discounts
+    </div>
+    <div class="nav-section-label">People</div>
+    <div class="nav-item" onclick="showPage('users', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Users
+    </div>
+    <div class="nav-section-label">System</div>
+    <div class="nav-item" onclick="showPage('settings', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar">AM</div>
+      <div class="user-info">
+        <div class="name">Aarav Mehta</div>
+        <div class="role">Super Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-title" id="topbar-title">Dashboard</div>
+  <div class="topbar-search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9186" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" placeholder="Search products, orders…">
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn notif" title="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-dot"></span>
+    </button>
+    <button class="icon-btn" title="Help">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+    </button>
+    <div class="admin-chip">
+      <div class="a-avatar">AM</div>
+      <span>Admin</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B9186" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header flex-between">
+      <div>
+        <h1>Good Morning, Aarav ✦</h1>
+        <p>Here's what's happening with The Kosmic today.</p>
+      </div>
+      <button class="btn btn-gold" onclick="showPage('add-product', document.querySelector('[onclick*=add-product]') || null)">+ Add New Product</button>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-icon icon-gold">📦</div>
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value">248</div>
+        <div class="stat-change stat-up">↑ 12 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-blue">🛒</div>
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value">1,847</div>
+        <div class="stat-change stat-up">↑ 8.2% vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-green">₹</div>
+        <div class="stat-label">Revenue (MTD)</div>
+        <div class="stat-value">₹4.2L</div>
+        <div class="stat-change stat-up">↑ 14.5% growth</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-red">⚠️</div>
+        <div class="stat-label">Low Stock Items</div>
+        <div class="stat-value">3</div>
+        <div class="stat-change stat-down">Needs restock soon</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px; gap:20px;">
+      <!-- SALES TREND -->
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:var(--charcoal);">Sales Trend</div>
+            <div style="font-size:12px;color:var(--text-muted);">Last 7 days</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--gold-dark);">₹68,240</div>
+        </div>
+        <div class="chart-bar-wrap">
+          <div class="chart-bar" style="height:35%;" title="Mon"></div>
+          <div class="chart-bar" style="height:55%;" title="Tue"></div>
+          <div class="chart-bar" style="height:48%;" title="Wed"></div>
+          <div class="chart-bar" style="height:72%;" title="Thu"></div>
+          <div class="chart-bar peak" style="height:100%;" title="Fri"></div>
+          <div class="chart-bar" style="height:85%;" title="Sat"></div>
+          <div class="chart-bar" style="height:63%;" title="Sun"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:10px;color:var(--text-muted);">Mon</span>
+          <span style="font-size:10px;color:var(--text-muted);">Tue</span>
+          <span style="font-size:10px;color:var(--text-muted);">Wed</span>
+          <span style="font-size:10px;color:var(--text-muted);">Thu</span>
+          <span style="font-size:10px;color:var(--text-muted);">Fri</span>
+          <span style="font-size:10px;color:var(--text-muted);">Sat</span>
+          <span style="font-size:10px;color:var(--text-muted);">Sun</span>
+        </div>
+      </div>
+
+      <!-- CATEGORY PIE -->
+      <div class="card">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:var(--charcoal);margin-bottom:16px;">Category Distribution</div>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#EDE6D8" stroke-width="22"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#C9A84C" stroke-width="22" stroke-dasharray="113 170" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#8B6914" stroke-width="22" stroke-dasharray="62 221" stroke-dashoffset="-113" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#E8D5A0" stroke-width="22" stroke-dasharray="45 238" stroke-dashoffset="-175" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#3D3A31" stroke-width="22" stroke-dasharray="63 220" stroke-dashoffset="-220" transform="rotate(-90 60 60)"/>
+            <text x="60" y="64" text-anchor="middle" font-size="13" font-weight="600" fill="#1C1A16" font-family="Cormorant Garamond">248</text>
+          </svg>
+          <div class="pie-legend">
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#C9A84C;"></div>Saree (40%)</div>
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#8B6914;"></div>Kurta (22%)</div>
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#E8D5A0;"></div>Lehenga (16%)</div>
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#3D3A31;"></div>Others (22%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:20px;">
+      <!-- RECENT PRODUCTS -->
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:var(--charcoal);">Recently Added</div>
+          <button class="action-btn" onclick="showPage('products', null)">View All</button>
+        </div>
+        <div class="activity-item">
+          <span style="font-size:28px;line-height:1;">🥻</span>
+          <div>
+            <div class="activity-text" style="font-weight:500;">Banarasi Silk Saree — Ivory</div>
+            <div class="activity-time">Added 2 hours ago · ₹12,500 · Stock: 8</div>
+          </div>
+          <span class="badge badge-active" style="margin-left:auto;flex-shrink:0;">Live</span>
+        </div>
+        <div class="activity-item">
+          <span style="font-size:28px;line-height:1;">👘</span>
+          <div>
+            <div class="activity-text" style="font-weight:500;">Anarkali Kurta — Deep Teal</div>
+            <div class="activity-time">Added 5 hours ago · ₹4,200 · Stock: 15</div>
+          </div>
+          <span class="badge badge-active" style="margin-left:auto;flex-shrink:0;">Live</span>
+        </div>
+        <div class="activity-item">
+          <span style="font-size:28px;line-height:1;">👗</span>
+          <div>
+            <div class="activity-text" style="font-weight:500;">Lehenga Set — Bridal Red</div>
+            <div class="activity-time">Added yesterday · ₹28,000 · Stock: 4</div>
+          </div>
+          <span class="badge badge-draft" style="margin-left:auto;flex-shrink:0;">Draft</span>
+        </div>
+      </div>
+
+      <!-- LATEST ORDERS -->
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:var(--charcoal);">Latest Orders</div>
+          <button class="action-btn" onclick="showPage('orders', null)">View All</button>
+        </div>
+        <div class="activity-item">
+          <div>
+            <div class="activity-text" style="font-weight:500;">#ORD-2847 · Priya Sharma</div>
+            <div class="activity-time">Banarasi Saree · ₹12,500</div>
+          </div>
+          <span class="order-status os-delivered" style="margin-left:auto;flex-shrink:0;">Delivered</span>
+        </div>
+        <div class="activity-item">
+          <div>
+            <div class="activity-text" style="font-weight:500;">#ORD-2846 · Anjali Mehta</div>
+            <div class="activity-time">Kurta Set × 2 · ₹8,400</div>
+          </div>
+          <span class="order-status os-processing" style="margin-left:auto;flex-shrink:0;">Processing</span>
+        </div>
+        <div class="activity-item">
+          <div>
+            <div class="activity-text" style="font-weight:500;">#ORD-2845 · Rohan Das</div>
+            <div class="activity-time">Lehenga · ₹28,000</div>
+          </div>
+          <span class="order-status os-pending" style="margin-left:auto;flex-shrink:0;">Pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PRODUCTS LIST ===== -->
+  <div class="page" id="page-products">
+    <div class="page-header flex-between">
+      <div>
+        <h1>Products</h1>
+        <p>Manage your entire catalogue from here.</p>
+      </div>
+      <div class="flex-gap">
+        <button class="btn btn-outline">Export CSV</button>
+        <button class="btn btn-gold" onclick="showPage('add-product', null)">+ Add Product</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="page-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9186" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search products…">
+      </div>
+      <select class="filter-select">
+        <option>All Categories</option>
+        <option>Saree</option>
+        <option>Kurta</option>
+        <option>Lehenga</option>
+        <option>Wedding</option>
+        <option>Festive</option>
+        <option>Fusion</option>
+      </select>
+      <select class="filter-select">
+        <option>All Stock Status</option>
+        <option>In Stock</option>
+        <option>Low Stock</option>
+        <option>Out of Stock</option>
+      </select>
+      <select class="filter-select">
+        <option>All Status</option>
+        <option>Published</option>
+        <option>Draft</option>
+      </select>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:48px;"><input type="checkbox" style="accent-color:var(--gold);"></th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Discount</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--gold);"></td>
+            <td>
+              <div class="product-name-cell">
+                <div class="product-thumb">🥻</div>
+                <div>
+                  <div style="font-weight:500;">Banarasi Silk Saree</div>
+                  <div style="font-size:12px;color:var(--text-muted);">SKU: BSS-001 · Ivory</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-cat">Saree</span> <span class="badge badge-cat" style="margin-left:4px;">Wedding</span></td>
+            <td style="font-weight:500;">₹12,500</td>
+            <td style="color:var(--green);">10% off</td>
+            <td><span style="color:var(--text-primary);font-weight:500;">8</span> <span style="color:var(--text-muted);font-size:12px;">units</span></td>
+            <td><span class="badge badge-active">Published</span></td>
+            <td>
+              <div class="flex-gap">
+                <button class="action-btn" onclick="showPage('edit-product', null)">Edit</button>
+                <button class="action-btn del">Delete</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--gold);"></td>
+            <td>
+              <div class="product-name-cell">
+                <div class="product-thumb">👘</div>
+                <div>
+                  <div style="font-weight:500;">Anarkali Kurta Set</div>
+                  <div style="font-size:12px;color:var(--text-muted);">SKU: AKS-024 · Deep Teal</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-cat">Kurta</span> <span class="badge badge-cat" style="margin-left:4px;">Festive</span></td>
+            <td style="font-weight:500;">₹4,200</td>
+            <td style="color:var(--text-muted);">—</td>
+            <td><span style="font-weight:500;">15</span> <span style="color:var(--text-muted);font-size:12px;">units</span></td>
+            <td><span class="badge badge-active">Published</span></td>
+            <td>
+              <div class="flex-gap">
+                <button class="action-btn" onclick="showPage('edit-product', null)">Edit</button>
+                <button class="action-btn del">Delete</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--gold);"></td>
+            <td>
+              <div class="product-name-cell">
+                <div class="product-thumb">👗</div>
+                <div>
+                  <div style="font-weight:500;">Bridal Lehenga Set</div>
+                  <div style="font-size:12px;color:var(--text-muted);">SKU: BLS-007 · Deep Red</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-cat">Lehenga</span> <span class="badge badge-cat" style="margin-left:4px;">Wedding</span></td>
+            <td style="font-weight:500;">₹28,000</td>
+            <td style="color:var(--green);">15% off</td>
+            <td><span style="color:var(--red);font-weight:500;">4</span> <span style="color:var(--text-muted);font-size:12px;">units</span></td>
+            <td><span class="badge badge-draft">Draft</span></td>
+            <td>
+              <div class="flex-gap">
+                <button class="action-btn" onclick="showPage('edit-product', null)">Edit</button>
+                <button class="action-btn del">Delete</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--gold);"></td>
+            <td>
+              <div class="product-name-cell">
+                <div class="product-thumb">🧣</div>
+                <div>
+                  <div style="font-weight:500;">Kota Doria Dupatta</div>
+                  <div style="font-size:12px;color:var(--text-muted);">SKU: KDD-012 · Multicolour</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-cat">Fusion</span></td>
+            <td style="font-weight:500;">₹1,800</td>
+            <td style="color:var(--green);">5% off</td>
+            <td><span style="color:var(--orange);font-weight:500;">6</span> <span style="color:var(--text-muted);font-size:12px;">units</span></td>
+            <td><span class="badge badge-active">Published</span></td>
+            <td>
+              <div class="flex-gap">
+                <button class="action-btn" onclick="showPage('edit-product', null)">Edit</button>
+                <button class="action-btn del">Delete</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" style="accent-color:var(--gold);"></td>
+            <td>
+              <div class="product-name-cell">
+                <div class="product-thumb">🥻</div>
+                <div>
+                  <div style="font-weight:500;">Chanderi Silk Saree</div>
+                  <div style="font-size:12px;color:var(--text-muted);">SKU: CSS-018 · Mint Green</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-cat">Saree</span> <span class="badge badge-cat" style="margin-left:4px;">Festive</span></td>
+            <td style="font-weight:500;">₹7,500</td>
+            <td style="color:var(--text-muted);">—</td>
+            <td><span style="font-weight:500;">22</span> <span style="color:var(--text-muted);font-size:12px;">units</span></td>
+            <td><span class="badge badge-active">Published</span></td>
+            <td>
+              <div class="flex-gap">
+                <button class="action-btn" onclick="showPage('edit-product', null)">Edit</button>
+                <button class="action-btn del">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 4px;">
+      <div style="font-size:13px;color:var(--text-muted);">Showing 5 of 248 products</div>
+      <div class="flex-gap">
+        <button class="action-btn">← Prev</button>
+        <button class="action-btn" style="background:var(--charcoal);color:var(--gold-light);border-color:var(--charcoal);">1</button>
+        <button class="action-btn">2</button>
+        <button class="action-btn">3</button>
+        <button class="action-btn">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADD PRODUCT ===== -->
+  <div class="page" id="page-add-product">
+    <div class="page-header flex-between">
+      <div>
+        <h1>Add New Product</h1>
+        <p>Fill in all sections to publish to the storefront.</p>
+      </div>
+      <div class="flex-gap">
+        <button class="btn btn-outline">Save as Draft</button>
+        <button class="btn btn-gold">Publish Product ✦</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+      <!-- LEFT COLUMN -->
+      <div>
+
+        <!-- SECTION 1: BASIC INFO -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">1</div>
+            <h3>Basic Information</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input class="form-input" type="text" placeholder="e.g. Banarasi Silk Saree — Ivory Gold">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Short Subtitle</label>
+            <input class="form-input" type="text" placeholder="e.g. Hand-woven heritage silk with zari border">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Description</label>
+            <div style="border:1px solid var(--border-mid);border-radius:8px;overflow:hidden;">
+              <div style="background:var(--cream);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;gap:12px;">
+                <button style="font-size:13px;font-weight:700;background:none;border:none;cursor:pointer;color:var(--text-secondary);">B</button>
+                <button style="font-size:13px;font-style:italic;background:none;border:none;cursor:pointer;color:var(--text-secondary);">I</button>
+                <button style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--text-secondary);">U</button>
+                <button style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--text-secondary);">≡</button>
+                <button style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--text-secondary);">🔗</button>
+              </div>
+              <textarea class="form-textarea" style="border:none;border-radius:0;" placeholder="Describe the product — fabric, craftsmanship, occasion, care instructions…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: MEDIA -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">2</div>
+            <h3>Product Images</h3>
+          </div>
+          <div class="upload-zone">
+            <div class="upload-icon">🖼️</div>
+            <p><strong>Drag & drop images here</strong> or click to browse</p>
+            <p style="margin-top:6px;">PNG, JPG, WEBP up to 10MB each · Min. 800×1000px</p>
+          </div>
+          <div class="img-preview-grid">
+            <div class="img-thumb">🥻<div class="del-x">✕</div></div>
+            <div class="img-thumb">✨<div class="del-x">✕</div></div>
+            <div class="img-thumb" style="border:1.5px dashed var(--border-mid);background:transparent;">
+              <span style="font-size:22px;color:var(--text-muted);">+</span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:12px;">First image will be the cover. Drag to reorder.</div>
+        </div>
+
+        <!-- SECTION 3: PRICING -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">3</div>
+            <h3>Pricing</h3>
+          </div>
+          <div class="grid-3" style="margin-bottom:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Base Price (₹) *</label>
+              <input class="form-input" type="number" placeholder="12500" id="base-price" oninput="calcPrice()">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Discount (%)</label>
+              <input class="form-input" type="number" placeholder="0" id="discount-pct" oninput="calcPrice()" max="90">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Final Price (₹)</label>
+              <input class="form-input" type="text" id="final-price" placeholder="—" readonly style="background:var(--cream);color:var(--gold-dark);font-weight:600;">
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer;">
+              <input type="radio" name="discount-type" style="accent-color:var(--gold);" checked> % Percentage
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer;">
+              <input type="radio" name="discount-type" style="accent-color:var(--gold);"> ₹ Flat Amount
+            </label>
+          </div>
+        </div>
+
+        <!-- SECTION 4: VARIANTS -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">4</div>
+            <h3>Variants</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Available Sizes</label>
+            <div class="size-grid" id="size-grid">
+              <button class="size-tag" onclick="toggleSize(this)">XS</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">S</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">M</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">L</button>
+              <button class="size-tag" onclick="toggleSize(this)">XL</button>
+              <button class="size-tag" onclick="toggleSize(this)">XXL</button>
+              <button class="size-tag" onclick="toggleSize(this)">Free Size</button>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Colour</label>
+              <input class="form-input" type="text" placeholder="e.g. Ivory, Gold Zari">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Material / Fabric</label>
+              <input class="form-input" type="text" placeholder="e.g. Pure Banarasi Silk">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: CATEGORIES -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">5</div>
+            <h3>Categories & Tags</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Product Type</label>
+            <div class="size-grid" id="cat-grid">
+              <button class="cat-tag" onclick="toggleCat(this)">Saree</button>
+              <button class="cat-tag selected" onclick="toggleCat(this)">Kurta</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Lehenga</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Dupatta</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Co-ord Set</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Jacket</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Occasion</label>
+            <div class="size-grid">
+              <button class="cat-tag" onclick="toggleCat(this)">Wedding</button>
+              <button class="cat-tag selected" onclick="toggleCat(this)">Festive</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Fusion</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Casual</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Office</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Party</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 6: INVENTORY -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">6</div>
+            <h3>Inventory</h3>
+          </div>
+          <div class="grid-3">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Stock Quantity *</label>
+              <input class="form-input" type="number" placeholder="0">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Low Stock Alert</label>
+              <input class="form-input" type="number" placeholder="5">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">SKU Code</label>
+              <input class="form-input" type="text" placeholder="e.g. BSS-001">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN (sidebar) -->
+      <div>
+
+        <!-- SECTION 7: STATUS -->
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;margin-bottom:16px;">Publish Status</div>
+          <div class="settings-row" style="padding:12px 0;">
+            <div>
+              <div class="settings-label">Publish to Store</div>
+              <div class="settings-desc">Product visible to shoppers</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row" style="padding:12px 0;">
+            <div>
+              <div class="settings-label">Featured Product</div>
+              <div class="settings-desc">Show on homepage section</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row" style="padding:12px 0;border-bottom:none;">
+            <div>
+              <div class="settings-label">New Arrival Badge</div>
+              <div class="settings-desc">Show "New" tag for 14 days</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <hr class="section-divider" style="margin:12px 0;">
+          <button class="btn btn-gold" style="width:100%;margin-bottom:10px;">Publish Product ✦</button>
+          <button class="btn btn-outline" style="width:100%;">Save as Draft</button>
+        </div>
+
+        <!-- PRODUCT SUMMARY -->
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;margin-bottom:16px;">Summary</div>
+          <div style="background:var(--cream);border-radius:10px;height:160px;display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:12px;">🥻</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Status</span><span class="badge badge-active">Published</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Categories</span><span style="color:var(--charcoal);font-weight:500;">Kurta, Festive</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Sizes</span><span style="color:var(--charcoal);font-weight:500;">S, M, L</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Final Price</span><span style="color:var(--gold-dark);font-weight:600;" id="summary-price">—</span></div>
+          </div>
+        </div>
+
+        <!-- SEO -->
+        <div class="card">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;margin-bottom:16px;">SEO Preview</div>
+          <div class="form-group">
+            <label class="form-label">Meta Title</label>
+            <input class="form-input" type="text" placeholder="Leave blank to auto-generate">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Meta Description</label>
+            <textarea class="form-textarea" style="min-height:70px;" placeholder="Auto-generated from description…"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EDIT PRODUCT ===== -->
+  <div class="page" id="page-edit-product">
+    <div class="page-header flex-between">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <button class="action-btn" onclick="showPage('products', null)" style="padding:4px 10px;">← Back</button>
+          <span class="badge badge-active">Published</span>
+        </div>
+        <h1>Edit Product</h1>
+        <p>SKU: BSS-001 · Last updated 2 hours ago</p>
+      </div>
+      <div class="flex-gap">
+        <button class="btn btn-danger">Delete Product</button>
+        <button class="btn btn-outline">Save Draft</button>
+        <button class="btn btn-gold">Save Changes ✦</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">1</div>
+            <h3>Basic Information</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input class="form-input" type="text" value="Banarasi Silk Saree — Ivory Gold">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Short Subtitle</label>
+            <input class="form-input" type="text" value="Hand-woven heritage silk with pure zari border">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea">A masterpiece of Indian textile tradition, this Banarasi Silk Saree is crafted with pure silk threads and adorned with intricate zari work. Perfect for weddings and grand festivities, this piece embodies the rich heritage of Varanasi's legendary weavers. The ivory base is offset by a deep gold zari border, creating a timeless elegance that transcends generations.</textarea>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">2</div>
+            <h3>Product Images</h3>
+          </div>
+          <div class="img-preview-grid">
+            <div class="img-thumb" style="border:2px solid var(--gold);">🥻<div class="del-x">✕</div><div style="position:absolute;bottom:0;left:0;right:0;background:var(--gold);font-size:8px;text-align:center;color:var(--charcoal);font-weight:600;padding:2px;">COVER</div></div>
+            <div class="img-thumb">✨<div class="del-x">✕</div></div>
+            <div class="img-thumb">🌟<div class="del-x">✕</div></div>
+            <div class="img-thumb" style="border:1.5px dashed var(--border-mid);background:transparent;"><span style="font-size:22px;color:var(--text-muted);">+</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">3</div>
+            <h3>Pricing</h3>
+          </div>
+          <div class="grid-3">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Base Price (₹) *</label>
+              <input class="form-input" type="number" value="12500">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Discount (%)</label>
+              <input class="form-input" type="number" value="10">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Final Price (₹)</label>
+              <input class="form-input" type="text" value="₹11,250" readonly style="background:var(--cream);color:var(--gold-dark);font-weight:600;">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">4</div>
+            <h3>Variants</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Available Sizes</label>
+            <div class="size-grid">
+              <button class="size-tag" onclick="toggleSize(this)">XS</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">S</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">M</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">L</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">XL</button>
+              <button class="size-tag" onclick="toggleSize(this)">XXL</button>
+              <button class="size-tag selected" onclick="toggleSize(this)">Free Size</button>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Colour</label>
+              <input class="form-input" type="text" value="Ivory, Gold Zari">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Material / Fabric</label>
+              <input class="form-input" type="text" value="Pure Banarasi Silk, Zari">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="form-section-header">
+            <div class="form-section-num">5</div>
+            <h3>Categories & Tags</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Product Type</label>
+            <div class="size-grid">
+              <button class="cat-tag selected" onclick="toggleCat(this)">Saree</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Kurta</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Lehenga</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Dupatta</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Occasion</label>
+            <div class="size-grid">
+              <button class="cat-tag selected" onclick="toggleCat(this)">Wedding</button>
+              <button class="cat-tag selected" onclick="toggleCat(this)">Festive</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Fusion</button>
+              <button class="cat-tag" onclick="toggleCat(this)">Casual</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="form-section-header">
+            <div class="form-section-num">6</div>
+            <h3>Inventory</h3>
+          </div>
+          <div class="grid-3">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Stock Quantity *</label>
+              <input class="form-input" type="number" value="8">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Low Stock Alert</label>
+              <input class="form-input" type="number" value="5">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">SKU Code</label>
+              <input class="form-input" type="text" value="BSS-001">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;margin-bottom:16px;">Publish Status</div>
+          <div class="settings-row" style="padding:12px 0;">
+            <div><div class="settings-label">Published</div><div class="settings-desc">Visible on storefront</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row" style="padding:12px 0;border-bottom:none;">
+            <div><div class="settings-label">Featured</div><div class="settings-desc">Show on homepage</div></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+          <hr class="section-divider" style="margin:12px 0;">
+          <button class="btn btn-gold" style="width:100%;margin-bottom:10px;">Save Changes ✦</button>
+          <button class="btn btn-danger" style="width:100%;">Delete Product</button>
+        </div>
+
+        <div class="card">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;margin-bottom:12px;">Product Activity</div>
+          <div class="activity-item" style="padding:10px 0;">
+            <div class="activity-dot"></div>
+            <div><div class="activity-text">Price updated to ₹12,500</div><div class="activity-time">Today, 10:24 AM</div></div>
+          </div>
+          <div class="activity-item" style="padding:10px 0;">
+            <div class="activity-dot" style="background:var(--text-muted);"></div>
+            <div><div class="activity-text">Images replaced (3 photos)</div><div class="activity-time">Yesterday, 3:10 PM</div></div>
+          </div>
+          <div class="activity-item" style="padding:10px 0;border-bottom:none;">
+            <div class="activity-dot" style="background:var(--text-muted);"></div>
+            <div><div class="activity-text">Product created & published</div><div class="activity-time">Apr 28, 9:00 AM</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CATEGORIES ===== -->
+  <div class="page" id="page-categories">
+    <div class="page-header flex-between">
+      <div><h1>Categories</h1><p>Organise products into collections for easy discovery.</p></div>
+      <button class="btn btn-gold">+ New Category</button>
+    </div>
+    <div class="grid-3" style="margin-bottom:24px;">
+      <div class="card" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:40px;margin-bottom:12px;">🥻</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Saree</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">98 products · 40% of catalogue</div>
+        <div class="stock-bar"><div class="stock-fill" style="background:var(--gold);width:40%;"></div></div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="action-btn" style="flex:1;">Edit</button>
+          <button class="action-btn" style="flex:1;" onclick="showPage('products',null)">View Products</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:40px;margin-bottom:12px;">👘</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Kurta</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">55 products · 22% of catalogue</div>
+        <div class="stock-bar"><div class="stock-fill" style="background:#8B6914;width:22%;"></div></div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="action-btn" style="flex:1;">Edit</button>
+          <button class="action-btn" style="flex:1;">View Products</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:40px;margin-bottom:12px;">👗</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Lehenga</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">40 products · 16% of catalogue</div>
+        <div class="stock-bar"><div class="stock-fill" style="background:#C9A84C;width:16%;"></div></div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="action-btn" style="flex:1;">Edit</button>
+          <button class="action-btn" style="flex:1;">View Products</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:40px;margin-bottom:12px;">💍</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Wedding</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">62 products · Occasion Tag</div>
+        <div style="display:flex;gap:8px;margin-top:26px;">
+          <button class="action-btn" style="flex:1;">Edit</button>
+          <button class="action-btn" style="flex:1;">View Products</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:40px;margin-bottom:12px;">🪔</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Festive</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">74 products · Occasion Tag</div>
+        <div style="display:flex;gap:8px;margin-top:26px;">
+          <button class="action-btn" style="flex:1;">Edit</button>
+          <button class="action-btn" style="flex:1;">View Products</button>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:40px;margin-bottom:12px;">✨</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Fusion</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">19 products · Occasion Tag</div>
+        <div style="display:flex;gap:8px;margin-top:26px;">
+          <button class="action-btn" style="flex:1;">Edit</button>
+          <button class="action-btn" style="flex:1;">View Products</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== INVENTORY ===== -->
+  <div class="page" id="page-inventory">
+    <div class="page-header flex-between">
+      <div><h1>Inventory</h1><p>Track stock levels and get low-stock alerts.</p></div>
+      <button class="btn btn-outline">Export Report</button>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="stat-label">Total SKUs</div><div class="stat-value">248</div></div>
+      <div class="stat-card"><div class="stat-label">In Stock</div><div class="stat-value" style="color:var(--green);">224</div></div>
+      <div class="stat-card"><div class="stat-label">Low Stock</div><div class="stat-value" style="color:var(--orange);">21</div></div>
+      <div class="stat-card"><div class="stat-label">Out of Stock</div><div class="stat-value" style="color:var(--red);">3</div></div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active">All Products</button>
+      <button class="tab-btn">Low Stock ⚠️</button>
+      <button class="tab-btn">Out of Stock</button>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Stock Level</th>
+            <th>Status</th>
+            <th>Last Restocked</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="product-name-cell"><div class="product-thumb">🥻</div><div><div style="font-weight:500;">Banarasi Silk Saree</div><div style="font-size:12px;color:var(--text-muted);">Ivory Gold</div></div></div></td>
+            <td style="font-size:12px;color:var(--text-muted);">BSS-001</td>
+            <td><span class="badge badge-cat">Saree</span></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="flex:1;"><div class="stock-bar"><div class="stock-fill" style="background:var(--green);width:80%;"></div></div></div>
+                <span style="font-size:13px;font-weight:600;min-width:32px;">8</span>
+              </div>
+            </td>
+            <td><span class="badge badge-active">In Stock</span></td>
+            <td style="font-size:12px;color:var(--text-muted);">Apr 30, 2026</td>
+            <td><button class="action-btn">+ Restock</button></td>
+          </tr>
+          <tr>
+            <td><div class="product-name-cell"><div class="product-thumb">👗</div><div><div style="font-weight:500;">Bridal Lehenga Set</div><div style="font-size:12px;color:var(--text-muted);">Deep Red</div></div></div></td>
+            <td style="font-size:12px;color:var(--text-muted);">BLS-007</td>
+            <td><span class="badge badge-cat">Lehenga</span></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="flex:1;"><div class="stock-bar"><div class="stock-fill" style="background:var(--red);width:20%;"></div></div></div>
+                <span style="font-size:13px;font-weight:600;color:var(--red);min-width:32px;">4</span>
+              </div>
+            </td>
+            <td><span class="badge badge-low">Low Stock</span></td>
+            <td style="font-size:12px;color:var(--text-muted);">Apr 20, 2026</td>
+            <td><button class="action-btn" style="border-color:var(--gold);color:var(--gold-dark);">+ Restock</button></td>
+          </tr>
+          <tr>
+            <td><div class="product-name-cell"><div class="product-thumb">👘</div><div><div style="font-weight:500;">Anarkali Kurta Set</div><div style="font-size:12px;color:var(--text-muted);">Deep Teal</div></div></div></td>
+            <td style="font-size:12px;color:var(--text-muted);">AKS-024</td>
+            <td><span class="badge badge-cat">Kurta</span></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="flex:1;"><div class="stock-bar"><div class="stock-fill" style="background:var(--green);width:100%;"></div></div></div>
+                <span style="font-size:13px;font-weight:600;min-width:32px;">15</span>
+              </div>
+            </td>
+            <td><span class="badge badge-active">In Stock</span></td>
+            <td style="font-size:12px;color:var(--text-muted);">May 1, 2026</td>
+            <td><button class="action-btn">+ Restock</button></td>
+          </tr>
+          <tr>
+            <td><div class="product-name-cell"><div class="product-thumb">🧣</div><div><div style="font-weight:500;">Kota Doria Dupatta</div><div style="font-size:12px;color:var(--text-muted);">Multicolour</div></div></div></td>
+            <td style="font-size:12px;color:var(--text-muted);">KDD-012</td>
+            <td><span class="badge badge-cat">Fusion</span></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="flex:1;"><div class="stock-bar"><div class="stock-fill" style="background:var(--orange);width:30%;"></div></div></div>
+                <span style="font-size:13px;font-weight:600;color:var(--orange);min-width:32px;">6</span>
+              </div>
+            </td>
+            <td><span class="badge badge-low">Low Stock</span></td>
+            <td style="font-size:12px;color:var(--text-muted);">Apr 22, 2026</td>
+            <td><button class="action-btn" style="border-color:var(--gold);color:var(--gold-dark);">+ Restock</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== ORDERS ===== -->
+  <div class="page" id="page-orders">
+    <div class="page-header flex-between">
+      <div><h1>Orders</h1><p>View and manage all customer orders.</p></div>
+      <button class="btn btn-outline">Export Orders</button>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="stat-icon icon-blue">🛒</div><div class="stat-label">Total Orders</div><div class="stat-value">1,847</div></div>
+      <div class="stat-card"><div class="stat-icon icon-green">✅</div><div class="stat-label">Delivered</div><div class="stat-value">1,562</div></div>
+      <div class="stat-card"><div class="stat-icon icon-gold">📦</div><div class="stat-label">Processing</div><div class="stat-value">273</div></div>
+      <div class="stat-card"><div class="stat-icon icon-red">✕</div><div class="stat-label">Cancelled</div><div class="stat-value">12</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="page-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9186" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search orders or customers…">
+      </div>
+      <select class="filter-select"><option>All Statuses</option><option>Delivered</option><option>Processing</option><option>Pending</option><option>Cancelled</option></select>
+      <select class="filter-select"><option>All Time</option><option>Today</option><option>This Week</option><option>This Month</option></select>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Product(s)</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--gold-dark);">#ORD-2847</td>
+            <td><div style="font-weight:500;">Priya Sharma</div><div style="font-size:12px;color:var(--text-muted);">Mumbai, MH</div></td>
+            <td>Banarasi Saree × 1</td>
+            <td style="font-weight:600;">₹11,250</td>
+            <td style="font-size:12px;color:var(--text-muted);">May 2, 2026</td>
+            <td><span class="order-status os-delivered">Delivered</span></td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--gold-dark);">#ORD-2846</td>
+            <td><div style="font-weight:500;">Anjali Mehta</div><div style="font-size:12px;color:var(--text-muted);">Delhi, DL</div></td>
+            <td>Anarkali Kurta × 2</td>
+            <td style="font-weight:600;">₹8,400</td>
+            <td style="font-size:12px;color:var(--text-muted);">May 2, 2026</td>
+            <td><span class="order-status os-processing">Processing</span></td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--gold-dark);">#ORD-2845</td>
+            <td><div style="font-weight:500;">Rohan Das</div><div style="font-size:12px;color:var(--text-muted);">Kolkata, WB</div></td>
+            <td>Bridal Lehenga × 1</td>
+            <td style="font-weight:600;">₹23,800</td>
+            <td style="font-size:12px;color:var(--text-muted);">May 1, 2026</td>
+            <td><span class="order-status os-pending">Pending</span></td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--gold-dark);">#ORD-2844</td>
+            <td><div style="font-weight:500;">Kavita Singh</div><div style="font-size:12px;color:var(--text-muted);">Jaipur, RJ</div></td>
+            <td>Chanderi Saree × 1, Dupatta × 2</td>
+            <td style="font-weight:600;">₹11,100</td>
+            <td style="font-size:12px;color:var(--text-muted);">Apr 30, 2026</td>
+            <td><span class="order-status os-delivered">Delivered</span></td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--red);">#ORD-2843</td>
+            <td><div style="font-weight:500;">Meera Nair</div><div style="font-size:12px;color:var(--text-muted);">Chennai, TN</div></td>
+            <td>Silk Kurta × 1</td>
+            <td style="font-weight:600;">₹3,800</td>
+            <td style="font-size:12px;color:var(--text-muted);">Apr 29, 2026</td>
+            <td><span class="order-status os-cancelled">Cancelled</span></td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== DISCOUNTS ===== -->
+  <div class="page" id="page-discounts">
+    <div class="page-header flex-between">
+      <div><h1>Discounts</h1><p>Create and manage coupon codes and promotional offers.</p></div>
+      <button class="btn btn-gold">+ Create Discount</button>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="stat-label">Active Codes</div><div class="stat-value">6</div></div>
+      <div class="stat-card"><div class="stat-label">Total Used</div><div class="stat-value">284</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue Discounted</div><div class="stat-value">₹48K</div></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="discount-card">
+        <div class="flex-between">
+          <div>
+            <div class="discount-code">WEDDING25</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">25% off on Wedding collection · Min. purchase ₹5,000</div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <span class="badge badge-cat">Wedding</span>
+              <span class="badge badge-cat">Festive</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge badge-active" style="margin-bottom:8px;display:inline-block;">Active</span>
+            <div style="font-size:13px;color:var(--text-muted);">Used 84 times</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Expires: Jun 15, 2026</div>
+          </div>
+        </div>
+        <hr class="section-divider" style="margin:14px 0;">
+        <div class="flex-gap">
+          <button class="action-btn">Edit</button>
+          <button class="action-btn del">Deactivate</button>
+          <button class="action-btn" style="margin-left:auto;">View Usage</button>
+        </div>
+      </div>
+
+      <div class="discount-card">
+        <div class="flex-between">
+          <div>
+            <div class="discount-code">NEWUSER10</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">10% off for first-time buyers · All categories</div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <span class="badge badge-cat">All Products</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge badge-active" style="margin-bottom:8px;display:inline-block;">Active</span>
+            <div style="font-size:13px;color:var(--text-muted);">Used 142 times</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">No expiry</div>
+          </div>
+        </div>
+        <hr class="section-divider" style="margin:14px 0;">
+        <div class="flex-gap">
+          <button class="action-btn">Edit</button>
+          <button class="action-btn del">Deactivate</button>
+          <button class="action-btn" style="margin-left:auto;">View Usage</button>
+        </div>
+      </div>
+
+      <div class="discount-card" style="opacity:0.6;">
+        <div class="flex-between">
+          <div>
+            <div class="discount-code">DIWALI20</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">20% off on Festive collection</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge badge-draft" style="margin-bottom:8px;display:inline-block;">Expired</span>
+            <div style="font-size:13px;color:var(--text-muted);">Used 58 times</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MEDIA LIBRARY ===== -->
+  <div class="page" id="page-media">
+    <div class="page-header flex-between">
+      <div><h1>Media Library</h1><p>All uploaded product images and assets.</p></div>
+      <div class="flex-gap">
+        <button class="btn btn-outline">Create Folder</button>
+        <button class="btn btn-gold">+ Upload Files</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="page-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9186" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search media…">
+      </div>
+      <select class="filter-select"><option>All Files</option><option>Images</option><option>Videos</option></select>
+      <select class="filter-select"><option>Newest First</option><option>Oldest First</option><option>Name A–Z</option></select>
+    </div>
+
+    <div style="background:var(--warm-white);border:2px dashed var(--border-mid);border-radius:12px;padding:24px;text-align:center;margin-bottom:20px;cursor:pointer;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border-mid)'">
+      <div style="font-size:28px;margin-bottom:8px;">☁️</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text-secondary);">Drop files to upload</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">PNG, JPG, WEBP up to 10MB</div>
+    </div>
+
+    <div class="media-grid">
+      <div class="media-item"><div class="media-emoji">🥻</div><div class="media-name">banarasi-01.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">👘</div><div class="media-name">anarkali-01.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">👗</div><div class="media-name">lehenga-red-01.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">🧣</div><div class="media-name">dupatta-01.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">🥻</div><div class="media-name">chanderi-01.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">✨</div><div class="media-name">brand-banner.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">🌺</div><div class="media-name">festive-cover.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+      <div class="media-item"><div class="media-emoji">👔</div><div class="media-name">mens-kurta-01.jpg</div><div class="media-overlay"><button class="action-btn" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">View</button><button class="action-btn del" style="font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.9);">Del</button></div></div>
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:13px;color:var(--text-muted);">Showing 8 of 312 files</div>
+  </div>
+
+  <!-- ===== USERS ===== -->
+  <div class="page" id="page-users">
+    <div class="page-header flex-between">
+      <div><h1>Users</h1><p>Manage customer accounts and admin access.</p></div>
+      <button class="btn btn-gold">+ Invite Admin</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active">Customers (1,243)</button>
+      <button class="tab-btn">Admin Team (3)</button>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Location</th>
+            <th>Orders</th>
+            <th>Total Spent</th>
+            <th>Joined</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gold-dark);">PS</div><div style="font-weight:500;">Priya Sharma</div></div></td>
+            <td style="font-size:13px;color:var(--text-muted);">priya@email.com</td>
+            <td style="font-size:13px;">Mumbai, MH</td>
+            <td style="font-weight:600;">8</td>
+            <td style="font-weight:600;color:var(--gold-dark);">₹68,400</td>
+            <td style="font-size:12px;color:var(--text-muted);">Jan 2026</td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gold-dark);">AM</div><div style="font-weight:500;">Anjali Mehta</div></div></td>
+            <td style="font-size:13px;color:var(--text-muted);">anjali@email.com</td>
+            <td style="font-size:13px;">Delhi, DL</td>
+            <td style="font-weight:600;">5</td>
+            <td style="font-weight:600;color:var(--gold-dark);">₹34,200</td>
+            <td style="font-size:12px;color:var(--text-muted);">Mar 2026</td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gold-dark);">KS</div><div style="font-weight:500;">Kavita Singh</div></div></td>
+            <td style="font-size:13px;color:var(--text-muted);">kavita@email.com</td>
+            <td style="font-size:13px;">Jaipur, RJ</td>
+            <td style="font-weight:600;">12</td>
+            <td style="font-weight:600;color:var(--gold-dark);">₹1,12,500</td>
+            <td style="font-size:12px;color:var(--text-muted);">Oct 2025</td>
+            <td><button class="action-btn">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <h1>Settings</h1>
+      <p>Configure your store preferences and account details.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start;">
+      <div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button style="padding:10px 14px;text-align:left;border:none;background:var(--charcoal);color:var(--gold-light);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">Store Info</button>
+          <button style="padding:10px 14px;text-align:left;border:none;background:transparent;color:var(--text-secondary);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Notifications</button>
+          <button style="padding:10px 14px;text-align:left;border:none;background:transparent;color:var(--text-secondary);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Payments</button>
+          <button style="padding:10px 14px;text-align:left;border:none;background:transparent;color:var(--text-secondary);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Shipping</button>
+          <button style="padding:10px 14px;text-align:left;border:none;background:transparent;color:var(--text-secondary);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Admin Profile</button>
+          <button style="padding:10px 14px;text-align:left;border:none;background:transparent;color:var(--red);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Danger Zone</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:20px;">Store Information</div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Store Name</label>
+              <input class="form-input" type="text" value="The Kosmic">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tagline</label>
+              <input class="form-input" type="text" value="The Art of Modern Heritage">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Store Description</label>
+            <textarea class="form-textarea">Elevating traditional Indian fashion through contemporary design and impeccable craftsmanship.</textarea>
+          </div>
+          <div class="grid-2">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Contact Email</label>
+              <input class="form-input" type="email" value="hello@thekosmic.in">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Phone</label>
+              <input class="form-input" type="tel" value="+91 98765 43210">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:4px;">Notifications</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Choose what triggers an admin notification.</div>
+
+          <div class="settings-row">
+            <div><div class="settings-label">New Order Placed</div><div class="settings-desc">Get notified every time a customer places an order</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Low Stock Alerts</div><div class="settings-desc">Alert when stock falls below threshold</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Customer Reviews</div><div class="settings-desc">Notify on new product reviews</div></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row" style="border-bottom:none;">
+            <div><div class="settings-label">Weekly Sales Report</div><div class="settings-desc">Email digest every Monday</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="flex-gap" style="justify-content:flex-end;">
+          <button class="btn btn-outline">Cancel</button>
+          <button class="btn btn-gold">Save Settings ✦</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const pageTitles = {
+    'dashboard': 'Dashboard',
+    'products': 'Products',
+    'add-product': 'Add New Product',
+    'edit-product': 'Edit Product',
+    'categories': 'Categories',
+    'inventory': 'Inventory',
+    'orders': 'Orders',
+    'discounts': 'Discounts',
+    'media': 'Media Library',
+    'users': 'Users',
+    'settings': 'Settings'
+  };
+
+  function showPage(pageId, navEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+    if (navEl) navEl.classList.add('active');
+    document.getElementById('topbar-title').textContent = pageTitles[pageId] || pageId;
+    window.scrollTo(0, 0);
+  }
+
+  // Add Product button in dashboard
+  document.querySelector('.btn-gold[onclick*="add-product"]') && null;
+  document.querySelectorAll('[onclick*="add-product"]').forEach(el => {
+    el.addEventListener('click', () => showPage('add-product', null));
+  });
+
+  function calcPrice() {
+    const base = parseFloat(document.getElementById('base-price').value) || 0;
+    const disc = parseFloat(document.getElementById('discount-pct').value) || 0;
+    const final = base - (base * disc / 100);
+    const formatted = final > 0 ? '₹' + Math.round(final).toLocaleString('en-IN') : '—';
+    document.getElementById('final-price').value = formatted;
+    const sp = document.getElementById('summary-price');
+    if (sp) sp.textContent = formatted;
+  }
+
+  function toggleSize(el) { el.classList.toggle('selected'); }
+  function toggleCat(el) { el.classList.toggle('selected'); }
+
+  // Keyboard shortcut: D for dashboard
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  });
+</script>
+</body>
+</html>
